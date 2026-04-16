@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chess Fighter</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     AUTH SCREEN
+══════════════════════════════════════ -->
+<div class="screen" id="screen-auth">
+  <div class="auth-wrap">
+    <div class="game-title">♟ CHESS FIGHTER ♟</div>
+    <div class="game-subtitle">RANKED COMBAT • STREET STYLE</div>
+
+    <div class="auth-panel">
+      <div class="nav-tabs" id="authTabs">
+        <button class="nav-tab active" data-tab="login">LOGIN</button>
+        <button class="nav-tab" data-tab="register">REGISTER</button>
+      </div>
+
+      <!-- Login -->
+      <div id="tab-login">
+        <input type="text"     class="sf-input" id="loginUser" placeholder="USERNAME" autocomplete="username" />
+        <input type="password" class="sf-input" id="loginPass" placeholder="PASSWORD" autocomplete="current-password" />
+        <button class="sf-btn" style="width:100%;margin-top:4px" id="loginBtn">INSERT COIN &nbsp;▶</button>
+        <div class="err-text" id="loginErr"></div>
+      </div>
+
+      <!-- Register -->
+      <div id="tab-register" style="display:none">
+        <input type="text"     class="sf-input" id="regUser"    placeholder="CHOOSE FIGHTER NAME" />
+        <input type="password" class="sf-input" id="regPass"    placeholder="PASSWORD (MIN 6 CHARS)" />
+        <input type="password" class="sf-input" id="regConfirm" placeholder="CONFIRM PASSWORD" />
+        <button class="sf-btn sf-btn-gold" style="width:100%;margin-top:4px" id="registerBtn">CREATE FIGHTER &nbsp;⚔</button>
+        <div class="err-text" id="registerErr"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     LOBBY SCREEN
+══════════════════════════════════════ -->
+<div class="screen" id="screen-lobby">
+  <div class="lobby-header">
+    <span style="font-size:1.6rem">♟</span>
+    <div class="lobby-title">CHESS FIGHTER</div>
+    <div style="flex:1"></div>
+
+    <!-- Current player widget -->
+    <div id="lobbyPlayerWidget" style="display:flex;align-items:center;gap:10px;margin-right:12px"></div>
+
+    <button class="sf-btn sf-btn-gold"    id="newGameBtn"  style="font-size:.5rem;padding:10px 18px">⚔ FIGHT</button>
+    <button class="sf-btn sf-btn-outline" id="profileBtn"  style="font-size:.5rem;padding:10px 18px;margin-left:6px">👤 PROFILE</button>
+    <button class="sf-btn sf-btn-outline" id="logoutBtn"   style="font-size:.5rem;padding:10px 18px;margin-left:6px">EXIT</button>
+  </div>
+
+  <div class="lobby-content">
+    <div class="section-title">🏆 WORLD RANKINGS</div>
+    <table class="leaderboard-table" id="leaderboardTable">
+      <thead>
+        <tr>
+          <th class="rank-cell">#</th>
+          <th>FIGHTER</th>
+          <th>ELO</th>
+          <th>WIN</th>
+          <th>LOSS</th>
+          <th>DRAW</th>
+          <th>WIN%</th>
+          <th>GAMES</th>
+          <th>AVG MVS</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboardBody">
+        <tr><td colspan="9" style="text-align:center;color:#444;padding:40px;font-family:'Press Start 2P',monospace;font-size:.55rem">LOADING FIGHTERS...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PROFILE SCREEN
+══════════════════════════════════════ -->
+<div class="screen" id="screen-profile">
+  <div class="lobby-header">
+    <button class="sf-btn sf-btn-outline" id="backFromProfileBtn" style="font-size:.45rem;padding:8px 14px">◀ BACK</button>
+    <span style="font-family:'Press Start 2P',monospace;font-size:.7rem;color:var(--col-gold);margin-left:14px">FIGHTER PROFILE</span>
+  </div>
+
+  <div class="profile-content">
+    <div class="avatar-drop-zone" id="avatarDropZone">
+      <div id="avatarLargeDefault" class="avatar-large-default">👤</div>
+      <img id="avatarLargeImg" class="avatar-large" src="" style="display:none" />
+      <div class="drop-hint">Click or drag to upload fighter photo</div>
+      <input type="file" id="avatarFile" accept="image/*" style="display:none" />
+    </div>
+
+    <div class="stats-grid" id="profileStats"></div>
+
+    <button class="sf-btn sf-btn-gold" style="width:100%" id="saveAvatarBtn">SAVE FIGHTER</button>
+    <div class="err-text" id="profileErr"></div>
+    <div class="ok-text"  id="profileOk">Avatar updated!</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     VS SCREEN
+══════════════════════════════════════ -->
+<div class="screen" id="screen-vs">
+  <div class="vs-bg"></div>
+
+  <div class="vs-fighter p1" id="vsFighterP1">
+    <div id="vsPortraitP1Wrap"></div>
+    <div class="vs-fighter-name" id="vsNameP1">P1</div>
+    <div class="vs-fighter-elo" id="vsEloP1">ELO 1200</div>
+    <div class="vs-fighter-color" id="vsColorP1">♔ WHITE</div>
+  </div>
+
+  <div class="vs-center">
+    <span class="vs-word">VS</span>
+  </div>
+
+  <div class="vs-fighter p2" id="vsFighterP2">
+    <div id="vsPortraitP2Wrap"></div>
+    <div class="vs-fighter-name" id="vsNameP2">P2</div>
+    <div class="vs-fighter-elo" id="vsEloP2">ELO 1200</div>
+    <div class="vs-fighter-color" id="vsColorP2">♚ BLACK</div>
+  </div>
+
+  <div class="vs-announce" id="vsRound">ROUND 1</div>
+  <div class="vs-fight"   id="vsFight">FIGHT!</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     GAME SCREEN
+══════════════════════════════════════ -->
+<div class="screen" id="screen-game">
+
+  <!-- HUD -->
+  <div class="game-hud">
+    <!-- P1 -->
+    <div class="player-hud p1">
+      <div class="hud-portrait">
+        <div id="hudDefaultP1" class="hud-portrait-default">👤</div>
+        <img  id="hudImgP1" src="" style="display:none;width:100%;height:100%;object-fit:cover" />
+      </div>
+      <div class="hud-info">
+        <div class="hud-name" id="hudNameP1">PLAYER 1</div>
+        <div class="health-wrap">
+          <div id="healthYP1" class="health-yellow" style="width:100%"></div>
+          <div id="healthRP1" class="health-red"    style="width:100%"></div>
+          <div class="health-shine"></div>
+        </div>
+        <div class="health-numbers" id="hudMatP1">39/39</div>
+      </div>
+    </div>
+
+    <!-- Center -->
+    <div class="hud-center">
+      <div class="timer-val" id="timerDisplay">00:00</div>
+      <div class="round-val" id="roundDisplay">ROUND 1</div>
+    </div>
+
+    <!-- P2 -->
+    <div class="player-hud p2">
+      <div class="hud-info">
+        <div class="hud-name" id="hudNameP2">PLAYER 2</div>
+        <div class="health-wrap">
+          <div id="healthYP2" class="health-yellow" style="width:100%"></div>
+          <div id="healthRP2" class="health-red"    style="width:100%"></div>
+          <div class="health-shine"></div>
+        </div>
+        <div class="health-numbers" id="hudMatP2" style="text-align:right">39/39</div>
+      </div>
+      <div class="hud-portrait">
+        <div id="hudDefaultP2" class="hud-portrait-default">🤖</div>
+        <img  id="hudImgP2" src="" style="display:none;width:100%;height:100%;object-fit:cover" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Board + panels -->
+  <div class="board-area">
+
+    <!-- Left panel -->
+    <div class="side-panel">
+      <div class="panel-card">
+        <div class="panel-label">⚫ BLACK CAPTURES</div>
+        <div class="captured-pieces" id="capturedByBlack">—</div>
+      </div>
+      <div class="panel-card" style="flex:1">
+        <div class="panel-label">📜 MOVES</div>
+        <div class="move-list" id="moveList"></div>
+      </div>
+      <div class="game-btns">
+        <button class="sf-btn sf-btn-outline" id="resignBtn"   style="font-size:.45rem;padding:10px">🏳 RESIGN</button>
+        <button class="sf-btn sf-btn-outline" id="drawBtn"     style="font-size:.45rem;padding:10px">🤝 DRAW</button>
+        <button class="sf-btn sf-btn-outline" id="flipBtn"     style="font-size:.45rem;padding:10px">🔄 FLIP</button>
+      </div>
+    </div>
+
+    <!-- Board -->
+    <div class="board-wrap">
+      <div class="chess-board" id="chessBoard"></div>
+      <div class="announce-overlay" id="announceOverlay">
+        <div class="announce-text" id="announceText"></div>
+      </div>
+    </div>
+
+    <!-- Right panel -->
+    <div class="side-panel">
+      <div class="panel-card">
+        <div class="panel-label">⚪ WHITE CAPTURES</div>
+        <div class="captured-pieces" id="capturedByWhite">—</div>
+      </div>
+      <div class="panel-card">
+        <div class="panel-label">⚡ STATUS</div>
+        <div class="status-text" id="statusText">White to move</div>
+      </div>
+      <div class="panel-card">
+        <div class="panel-label">🎯 TURN</div>
+        <div class="turn-row">
+          <div class="turn-piece" id="turnPiece">♔</div>
+          <div class="turn-name"  id="turnName">WHITE</div>
+        </div>
+      </div>
+      <div class="panel-card">
+        <div class="panel-label">📊 ADVANTAGE</div>
+        <div class="status-text" id="advantageText">Equal</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     RESULT SCREEN
+══════════════════════════════════════ -->
+<div class="screen" id="screen-result">
+  <div class="result-box fade-in">
+    <div class="result-trophy" id="resultTrophy">🏆</div>
+    <div class="result-caption" id="resultCaption">WINNER</div>
+    <div class="result-name"    id="resultName">PLAYER</div>
+    <div class="result-how"     id="resultHow">by checkmate</div>
+    <div class="sep"></div>
+    <div class="result-stats" id="resultStats"></div>
+    <div class="result-btns">
+      <button class="sf-btn sf-btn-gold"    id="rematchBtn">⚔ REMATCH</button>
+      <button class="sf-btn sf-btn-outline" id="returnBtn" >🏠 LOBBY</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     NEW GAME MODAL
+══════════════════════════════════════ -->
+<div class="modal-overlay" id="newGameModal">
+  <div class="modal-box">
+    <div class="modal-title">⚔ SELECT CHALLENGER</div>
+
+    <div style="margin-bottom:16px">
+      <div class="panel-label" style="margin-bottom:8px">GAME MODE</div>
+      <div class="mode-btns">
+        <button class="sf-btn mode-btn active" data-mode="ai">🤖 VS AI</button>
+        <button class="sf-btn sf-btn-outline mode-btn" data-mode="hotseat">👥 HOT SEAT</button>
+      </div>
+    </div>
+
+    <div id="aiOptions">
+      <div class="panel-label" style="margin-bottom:8px">AI DIFFICULTY</div>
+      <select class="sf-input" id="aiDepthSelect">
+        <option value="1">ROOKIE   — Depth 1</option>
+        <option value="2">AMATEUR  — Depth 2</option>
+        <option value="3" selected>FIGHTER  — Depth 3</option>
+        <option value="4">CHAMPION — Depth 4</option>
+      </select>
+    </div>
+
+    <div id="hotseatOptions" style="display:none">
+      <div class="panel-label" style="margin-bottom:8px">SELECT OPPONENT</div>
+      <div class="user-select-list" id="opponentList">
+        <div style="color:#444;padding:20px;text-align:center;font-family:'Press Start 2P',monospace;font-size:.5rem">LOADING...</div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px">
+      <div class="panel-label" style="margin-bottom:8px">YOUR COLOR</div>
+      <div class="color-btns">
+        <button class="sf-btn color-btn active" data-color="white">♔ WHITE</button>
+        <button class="sf-btn sf-btn-outline color-btn" data-color="black">♚ BLACK</button>
+        <button class="sf-btn sf-btn-outline color-btn" data-color="random">🎲 RANDOM</button>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:24px">
+      <button class="sf-btn sf-btn-gold" style="flex:1" id="startFightBtn">FIGHT! ⚔</button>
+      <button class="sf-btn sf-btn-outline" style="flex:1" id="cancelFightBtn">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
